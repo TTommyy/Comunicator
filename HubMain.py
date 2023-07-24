@@ -1,3 +1,7 @@
+# Author: Tomasz Koczar
+# Year: 2023AD
+# Brief: Executable for Hub
+
 from Logs import LOG_ENTER, LOG_INFO, LOG_ERROR
 from Hub import Hub
 

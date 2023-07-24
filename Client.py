@@ -1,3 +1,7 @@
+# Author: Tomasz Koczar
+# Year: 2023AD
+# Brief: Class implementing hub client
+
 from Logs import LOG_ENTER, LOG_INFO, LOG_ERROR
 from threading import Thread
 from socket import socket, AF_INET, SOCK_STREAM
