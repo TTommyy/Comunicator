@@ -6,6 +6,7 @@
 from Logs import LOG_ENTER, LOG_INFO, LOG_ERROR
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_ERROR
 from threading import Thread
+from Messages.Py.Message_pb2 import Message
 
 # Constants
 ipAddress = ''
@@ -29,8 +30,13 @@ class Hub:
     while connLeft > 0:
       LOG_INFO(f"Waiting for {connLeft} more clients")
       client, addr = self.hub.accept()
-      LOG_INFO(f"Client connected")
-      self.clients.append(client)
+      # Recive welcoming message
+      data = client.recv(1024)
+      recived_message = Message()
+      recived_message.ParseFromString(data)
+      name = recived_message.name
+      LOG_INFO(f"{name} connected")
+      self.clients.append((client, name))
       connLeft -= 1
       Thread(target=self.handleConnection, args=(client,)).start()
 
@@ -50,13 +56,13 @@ class Hub:
   def handleConnection(self, client):
     LOG_INFO("Starting theread")
     while self.stopCondition(client):
-      self.clients = [client for client in self.clients if self.isClientConnected(client)]
+      self.clients = [(client, name) for client, name in self.clients if self.isClientConnected(client)]
       try:
         data = client.recv(1024)
         if not data:
           LOG_INFO("No data recived")
         else:
-          for fclient in self.clients:
+          for fclient, name in self.clients:
             if fclient != client:  # Exclude the sending client itself
               if self.isClientConnected(fclient):
                 fclient.send(data)
